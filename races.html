@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Races | Nor'easters Track Club</title>
+<link rel="icon" href="img/logo-icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="races">
+<main>
+<section>
+  <div class="wrap narrow">
+    <div class="eyebrow">Race calendar</div>
+    <h2>Where we're racing</h2>
+    <p style="color:var(--muted)">Let the team know which races you'll be at. Tap "Sign up" on any race below.</p>
+    <div id="races" style="margin-top:26px"></div>
+  </div>
+</section>
+</main>
+<script type="module">
+  import "./common.js";
+  import { mountRaces } from "./races.js";
+  mountRaces("#races", { showPast: true });
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin | Nor'easters Track Club</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="img/logo-icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="admin">
+<main>
+<section>
+  <div class="wrap">
+    <div id="login" class="narrow" hidden>
+      <div class="eyebrow">Admin</div>
+      <h2>Sign in</h2>
+      <form class="card" id="lf">
+        <label for="le">Email</label><input id="le" type="email" required autocomplete="username">
+        <label for="lp">Password</label><input id="lp" type="password" required autocomplete="current-password">
+        <div style="margin-top:16px"><button class="btn" type="submit">Sign in</button></div>
+        <div class="msg err" id="lmsg" role="alert"></div>
+      </form>
+    </div>
+
+    <div id="panel" hidden>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div><div class="eyebrow">Admin</div><h2 style="margin:0">Manage the team site</h2></div>
+        <button class="btn ghost small" id="out">Sign out</button>
+      </div>
+      <div class="admin-grid" style="margin-top:28px">
+        <div class="card">
+          <h3>Add a race</h3>
+          <form id="rf">
+            <label for="rn">Race name</label><input id="rn" required maxlength="120">
+            <div class="row2">
+              <div><label for="rd">Date</label><input id="rd" type="date" required></div>
+              <div><label for="rl">Location</label><input id="rl" maxlength="120" placeholder="Boston, MA"></div>
+            </div>
+            <label for="ru">Website (optional)</label><input id="ru" type="url" placeholder="https://...">
+            <label for="rt">Notes (optional)</label><textarea id="rt" maxlength="500" placeholder="Distance, meeting spot, bib pickup..."></textarea>
+            <div style="margin-top:16px"><button class="btn" type="submit">Add race</button></div>
+            <div class="msg" id="rmsg" role="status"></div>
+          </form>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:22px"><h3>Races</h3><div id="rlist"></div></div>
+          <div class="card" style="margin-bottom:22px"><h3>Contact messages</h3><div id="mlist"></div></div>
+          <div class="card"><h3>Moderate comments</h3><div id="clist"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+<script type="module">
+  import { esc, $, longDate, ago } from "./common.js";
+  import db from "./db.js";
+  import { isDemo } from "./db.js";
+  import { ADMIN_EMAIL } from "./firebase-config.js";
+
+  const empty = t => `<p class="meta">${t}</p>`;
+  let started = false, unsubs = [];
+
+  db.onAuth(user => {
+    $("#login").hidden = !!user; $("#panel").hidden = !user;
+    if (!user) { unsubs.forEach(u => u && u()); unsubs = []; started = false; return; }
+    if (started) return; started = true;
+
+    unsubs.push(db.races(list => {
+      $("#rlist").innerHTML = list.length ? list.map(r => `
+        <div class="list-item"><div class="txt"><b>${esc(r.name)}</b><br><span class="meta">${esc(longDate(r.date))}${r.location ? " · " + esc(r.location) : ""}</span></div>
+        <button class="btn danger small" data-del-race="${esc(r.id)}">Delete</button></div>`).join("") : empty("No races yet.");
+    }));
+    unsubs.push(db.messages(list => {
+      $("#mlist").innerHTML = list.length ? list.map(m => `
+        <div class="list-item"><div class="txt"><b>${esc(m.name)}</b> <a href="mailto:${esc(m.email)}">${esc(m.email)}</a> <span class="meta">${ago(m.createdAt)}</span><br>${esc(m.message)}</div>
+        <button class="btn danger small" data-del-msg="${esc(m.id)}">Delete</button></div>`).join("") : empty("No messages.");
+    }));
+    unsubs.push(db.comments(list => {
+      $("#clist").innerHTML = list.length ? list.map(c => `
+        <div class="list-item"><div class="txt"><b>${esc(c.name)}</b> <span class="meta">${ago(c.createdAt)}</span><br>${esc(c.text)}</div>
+        <button class="btn danger small" data-del-com="${esc(c.id)}">Delete</button></div>`).join("") : empty("No comments.");
+    }));
+  });
+
+  document.addEventListener("click", async e => {
+    const t = e.target.closest("button[data-del-race],button[data-del-msg],button[data-del-com]");
+    if (!t) return;
+    if (!confirm("Delete this? This can't be undone.")) return;
+    try {
+      if (t.dataset.delRace) await db.deleteRace(t.dataset.delRace);
+      if (t.dataset.delMsg) await db.deleteMessage(t.dataset.delMsg);
+      if (t.dataset.delCom) await db.deleteComment(t.dataset.delCom);
+    } catch (err) { console.error(err); alert("Delete failed."); }
+  });
+
+  $("#lf").addEventListener("submit", async e => {
+    e.preventDefault();
+    $("#lmsg").textContent = "";
+    try {
+      if (isDemo && $("#le").value.trim() !== ADMIN_EMAIL) throw new Error("bad");
+      await db.login($("#le").value.trim(), $("#lp").value);
+    } catch { $("#lmsg").textContent = isDemo ? `Demo mode: sign in with ${ADMIN_EMAIL} and any password.` : "Sign-in failed. Check your email and password."; }
+  });
+  $("#out").addEventListener("click", () => db.logout());
+
+  $("#rf").addEventListener("submit", async e => {
+    e.preventDefault();
+    e.submitter.disabled = true;
+    try {
+      await db.addRace({ name: $("#rn").value.trim(), date: $("#rd").value, location: $("#rl").value.trim(), url: $("#ru").value.trim(), notes: $("#rt").value.trim() });
+      e.target.reset(); $("#rmsg").className = "msg ok"; $("#rmsg").textContent = "Race added. It's live on the site.";
+    } catch (err) { console.error(err); $("#rmsg").className = "msg err"; $("#rmsg").textContent = "Couldn't add the race (are you signed in as admin?)."; }
+    e.submitter.disabled = false;
+  });
+</script>
+</body>
+</html>

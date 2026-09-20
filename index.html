@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nor'easters Track Club | Masters Women's Running, New England</title>
+<meta name="description" content="A New England masters women's running group (35+) that joins competitive racing with a fun, supportive team environment.">
+<link rel="icon" href="img/logo-icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="home">
+<main>
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">New England &middot; Women 35+</div>
+    <h1>Race hard. <b>Have fun.</b><br>Run together.</h1>
+    <p>Nor'easters Track Club is a masters women's running group that joins competitive racing with a fun, supportive team environment.</p>
+    <a class="btn light" href="contact.html">Get in touch</a>
+    <a class="btn ghost" style="color:#fff;border-color:#fff;margin-left:8px" href="races.html">See our races</a>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap split">
+    <div>
+      <div class="eyebrow">Our Team</div>
+      <h2>A community of women who love to run</h2>
+      <p>We're women ages 35+ who love to race and who are open to trying new things, with an emphasis on distances from the 400m up to the half marathon.</p>
+      <p>Each athlete has her own training, schedule, and goals, and we come together for key races throughout the year and for monthly team runs. We aim to keep it fun and support each other every step of the way.</p>
+    </div>
+    <div>
+      <div class="eyebrow">Who We Are</div>
+      <ul class="clean">
+        <li>Women in New England (generally the greater Boston area), ages 35+, who love to train and race.</li>
+        <li>Competitive in both the masters and open divisions, but there are <b>no performance requirements</b> for the team.</li>
+        <li>Driven by a love for running and racing, embracing new challenges while keeping things fun and grounded.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="commitment">
+  <div class="wrap">
+    <div class="eyebrow">The Commitment</div>
+    <h2>Key races and monthly runs</h2>
+    <div class="grid" style="margin-top:26px">
+      <div class="card"><h3>Key races</h3><p>We come together for several races each year, which can change year to year. Examples:</p>
+        <ul class="clean" style="margin-top:10px">
+          <li>Boston 10K For Women</li><li>Cambridge Half Marathon</li>
+          <li>New Balance Indoor Grand Prix Masters Mile</li><li>James Joyce Ramble 10K</li><li>Cambridge Spring Classic 5K</li>
+        </ul></div>
+      <div class="card"><h3>Track relays</h3><p>We'll also try to field 4x400 and 4x800 relay teams at track meets such as Penn Relays, Millrose Games, and USATF Masters Nationals.</p></div>
+      <div class="card"><h3>Monthly team runs</h3><p>Rotating locations across the greater Boston and Providence area. We're there for each other during races, training, and everything in between.</p></div>
+      <div class="card"><h3>Minimal dues</h3><p>Just enough to cover the USATF club fee and the cost of a racing singlet.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="next">
+  <div class="wrap narrow">
+    <div class="eyebrow">On the calendar</div>
+    <h2>Upcoming races</h2>
+    <div id="races"></div>
+    <p style="text-align:center;margin-top:24px"><a class="btn ghost" href="races.html">All races</a></p>
+  </div>
+</section>
+
+<section id="talk">
+  <div class="wrap narrow">
+    <div class="eyebrow">Team board</div>
+    <h2>Comments</h2>
+    <div id="comments"></div>
+  </div>
+</section>
+</main>
+<script type="module">
+  import "./common.js";
+  import { mountRaces } from "./races.js";
+  import { mountComments } from "./comments.js";
+  mountRaces("#races", { limit: 3 });
+  mountComments("#comments");
+</script>
+</body>
+</html>
