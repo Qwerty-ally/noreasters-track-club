@@ -29,6 +29,6 @@ ${isDemo ? `<div class="banner">Demo mode: Firebase isn't connected yet, so data
 document.body.insertAdjacentHTML("beforeend", `
 <footer><div class="wrap">
   <img src="img/logo-icon.png" alt="">
-  <div>Nor'easters Track Club &middot; Masters women's running in New England</div>
+  <div>Nor'easters Track Club &middot; 35+ women's running in New England</div>
   <div style="margin-top:6px"><a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a> &middot; <a href="admin.html">Admin</a></div>
 </div></footer>`);
